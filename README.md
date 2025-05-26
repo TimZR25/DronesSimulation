@@ -14,3 +14,10 @@
 Ассет NavMeshPlus: https://github.com/h8man/NavMeshPlus (2D дополнение к NavMesh). 
 
 Для дрона использована машина состояний (можно увидеть смену состояний по цветам).
+
+Скриншоты:
+=
+![Gameplay Screenshot](https://github.com/TimZR25/DronesSimulation/blob/52cebf46bbbb769abfd9049caa7cb1b30495ef6e/Screenshoots/screenshot_1.png)
+![Gameplay Screenshot](https://github.com/TimZR25/DronesSimulation/blob/52cebf46bbbb769abfd9049caa7cb1b30495ef6e/Screenshoots/screenshot_2.png)
+![Gameplay Screenshot](https://github.com/TimZR25/DronesSimulation/blob/52cebf46bbbb769abfd9049caa7cb1b30495ef6e/Screenshoots/screenshot_3.png)
+![Gameplay Screenshot](https://github.com/TimZR25/DronesSimulation/blob/52cebf46bbbb769abfd9049caa7cb1b30495ef6e/Screenshoots/screenshot_4.png)
