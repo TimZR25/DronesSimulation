@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
 public class NavigationDepartment : MonoBehaviour
 {
@@ -21,6 +22,8 @@ public class NavigationDepartment : MonoBehaviour
     private Stack<Drone> _waitingDrones = new Stack<Drone>();
     private Stack<Drone> _removedDrones = new Stack<Drone>();
 
+    private int _dronesCount;
+
     private IReadOnlyList<Resource> _resources => _resourceSpawner.FreeResources;
 
     private int _score = 0;
@@ -30,8 +33,24 @@ public class NavigationDepartment : MonoBehaviour
         _resourceSpawner = resourceSpawner;
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log($"A:{_drones.Count} : W:{_waitingDrones.Count} : R:{_removedDrones.Count}");
+        }
+    }
+
     private IEnumerator DistributeDrones()
     {
+        if (_waitingDrones.Count > 0)
+        {
+            if (_drones.Count + _waitingDrones.Count != _dronesCount)
+            {
+                StartCoroutine(DistributeDrones(_dronesCount));
+            }
+        }
+
         if (_waitingDrones.Count > 0 && _resources.Count > 0)
         {
             Drone drone = _waitingDrones.Pop();
@@ -166,6 +185,8 @@ public class NavigationDepartment : MonoBehaviour
 
     private void OnDroneCountChanged(float value)
     {
+        _dronesCount = (int)value;
+
         if (_drones.Count + _waitingDrones.Count + _removedDrones.Count <= 0)
         {
             SpawnDrones((int)value);
@@ -188,7 +209,7 @@ public class NavigationDepartment : MonoBehaviour
                 DisableDrone(drone);
             }
         }
-        if (dronesCount > count)
+        else if (dronesCount > count)
         {
             if (_waitingDrones.Count > 0)
             {
