@@ -11,6 +11,10 @@ public class NavigationDepartment : MonoBehaviour
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private Color _color;
 
+    [SerializeField] private Text _scoreText;
+
+    [SerializeField] private ParticleSystem _particleSystem;
+
     private ResourceSpawner _resourceSpawner;
 
     private List<Drone> _drones = new List<Drone>();
@@ -19,7 +23,6 @@ public class NavigationDepartment : MonoBehaviour
 
     private IReadOnlyList<Resource> _resources => _resourceSpawner.FreeResources;
 
-    [SerializeField] private Text _scoreText;
     private int _score = 0;
 
     public void Inject(ResourceSpawner resourceSpawner)
@@ -136,6 +139,8 @@ public class NavigationDepartment : MonoBehaviour
 
     private void OnResourceUnloaded(Drone drone)
     {
+        _particleSystem.Play();
+
         _score++;
         _scoreText.text = _score.ToString();
 

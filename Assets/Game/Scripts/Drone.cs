@@ -12,6 +12,8 @@ public class Drone : MonoBehaviour
 
     [SerializeField] private SpriteRenderer _teamSR;
 
+    [SerializeField] private float _timeToCollect;
+
     private NavMeshAgent _agent;
     public NavMeshAgent Agent => _agent;
 
@@ -69,6 +71,10 @@ public class Drone : MonoBehaviour
             _lineRenderer.positionCount = _agent.path.corners.Length;
             _lineRenderer.SetPositions(_agent.path.corners);
         }
+        else
+        {
+            _lineRenderer.ResetBounds();
+        }
     }
 
     public void SetTeamColor(Color color)
@@ -99,7 +105,7 @@ public class Drone : MonoBehaviour
 
         if (_resource is not null)
         {
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(_timeToCollect);
 
             _resource.Collect();
         }
