@@ -1,12 +1,7 @@
-using Mono.Cecil;
-using NavMeshPlus.Components;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Events;
 
 public class ResourceSpawner : MonoBehaviour
 {
@@ -15,9 +10,10 @@ public class ResourceSpawner : MonoBehaviour
     [SerializeField] private int SourceCount;
 
     [SerializeField] private SpriteRenderer _floor;
-    [SerializeField] private List<SpriteRenderer> _obstacles;
 
-    [SerializeField] private int _spawnPointCount;
+    [SerializeField] private float _spawnDelay;
+
+    private List<SpriteRenderer> _obstacles;
 
     private List<Resource> _reservedResources = new List<Resource>();
 
@@ -27,11 +23,11 @@ public class ResourceSpawner : MonoBehaviour
 
     public List<Resource> FreeResources => _freeResources;
 
+    private int _spawnRate;
+
     private Vector3 _max;
     private Vector3 _min;
     private Vector3 _offset;
-
-    private List<Vector3> _spawnPoints = new List<Vector3>();
 
     private void Awake()
     {
@@ -40,17 +36,6 @@ public class ResourceSpawner : MonoBehaviour
 
         _max = _floor.bounds.max;
         _min = _floor.bounds.min;
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            Debug.Log(_obstacles.Count);
-            Debug.Log(_pooledResources.Count);
-            Debug.Log(_reservedResources.Count);
-            Debug.Log(_freeResources.Count);
-        }
     }
 
     public void Inject(List<SpriteRenderer> obstacles)
@@ -109,38 +94,6 @@ public class ResourceSpawner : MonoBehaviour
         }
     }
 
-    private void GenerateSpawnPoints(Resource resource)
-    {
-        for (int i = 0; i < _spawnPointCount; i++)
-        {
-            bool isEmpty;
-
-            Vector3 point;
-
-            do
-            {
-                isEmpty = true;
-
-                float x = Random.Range(_min.x + _offset.x, _max.x - _offset.x);
-                float y = Random.Range(_min.y + _offset.y, _max.y - _offset.y - resource.PointToStop.localPosition.y);
-
-                point = new Vector3(x, y, 0);
-
-                foreach (var obstacle in _obstacles)
-                {
-                    if (NavMesh.SamplePosition(point, out NavMeshHit hit, 0.1f, NavMesh.AllAreas) == false)
-                    {
-                        isEmpty = false;
-                        break;
-                    }
-                }
-
-            } while (isEmpty == false);
-
-            _spawnPoints.Add(point);
-        }
-    }
-
     private IEnumerator SetPosition(Resource resource, SpriteRenderer resourceSR)
     {
         yield return null;
@@ -182,6 +135,16 @@ public class ResourceSpawner : MonoBehaviour
         resource.Collected -= OnResourceCollected;
 
         resource.gameObject.SetActive(false);
-        StartCoroutine(ResetResource(5));
+        StartCoroutine(ResetResource(_spawnDelay * _spawnRate * _spawnRate));
+    }
+
+    private void OnEnable()
+    {
+        GameSettings.ResourceRateChanged += (int value) => _spawnRate = value;
+    }
+
+    private void OnDisable()
+    {
+        GameSettings.ResourceRateChanged -= (int value) => _spawnRate = value;
     }
 }

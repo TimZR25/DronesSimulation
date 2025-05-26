@@ -239,7 +239,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dronePrefab: {fileID: 7095173337188562760, guid: ba3b3e8a5856e7745be2229c9d374ebe, type: 3}
-  DroneCount: 2
   _spriteRenderer: {fileID: 1760181532618961286}
   _color: {r: 1, g: 1, b: 1, a: 1}
   _scoreText: {fileID: 0}

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent (typeof(Camera))]
+[RequireComponent(typeof(Camera))]
 public class CameraMoving : MonoBehaviour
 {
     [Header("Move")]
@@ -62,7 +62,7 @@ public class CameraMoving : MonoBehaviour
 
             _camera.orthographicSize = orthographicSize;
 
-            float minSpeed = _startMoveSpeed / 1.5f;
+            float minSpeed = _startMoveSpeed;
             float maxSpeed = _startMoveSpeed * 2;
 
             float clamp = Mathf.Clamp(orthographicSize, minSpeed, maxSpeed);

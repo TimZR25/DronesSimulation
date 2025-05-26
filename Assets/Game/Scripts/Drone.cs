@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
 
-[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(NavMeshAgent), typeof(LineRenderer))]
 public class Drone : MonoBehaviour
 {
     [SerializeField] private float _collectRadius;
@@ -38,14 +38,37 @@ public class Drone : MonoBehaviour
     private Resource _resource;
     private Transform _target;
 
+    private LineRenderer _lineRenderer;
+
+    private bool _pathView;
+
     private void Awake()
     {
         if (_agent is null)
         {
             _agent = GetComponent<NavMeshAgent>();
         }
+
+        if (_lineRenderer is null)
+        {
+            _lineRenderer = GetComponent<LineRenderer>();
+        }
+
+        _lineRenderer.startWidth = 0.05f;
+        _lineRenderer.endWidth = 0.05f;
+        _lineRenderer.material = new Material(Shader.Find("Sprites/Default")) { color = Color.yellow };
+
         _agent.updateRotation = false;
         _agent.updateUpAxis = false;
+    }
+
+    private void Update()
+    {
+        if (_agent.hasPath && _pathView)
+        {
+            _lineRenderer.positionCount = _agent.path.corners.Length;
+            _lineRenderer.SetPositions(_agent.path.corners);
+        }
     }
 
     public void SetTeamColor(Color color)
@@ -93,6 +116,9 @@ public class Drone : MonoBehaviour
 
     private void OnEnable()
     {
+        GameSettings.DroneSpeedChanged += (float value) => _agent.speed = value;
+        GameSettings.PathViewChanged += (bool value) => _pathView = value;
+
         StopAllCoroutines();
 
         StartCoroutine(CheckState());
@@ -100,6 +126,9 @@ public class Drone : MonoBehaviour
 
     private void OnDisable()
     {
+        GameSettings.DroneSpeedChanged -= (float value) => _agent.speed = value;
+        GameSettings.PathViewChanged -= (bool value) => _pathView = value;
+
         StopAllCoroutines();
     }
 

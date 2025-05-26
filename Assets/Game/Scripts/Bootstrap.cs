@@ -27,7 +27,6 @@ public class Bootstrap : MonoBehaviour
         foreach (var item in navigationDepartments)
         {
             item.Inject(_resourceSpawner);
-            item.SpawnDrones();
         }
     }
 }

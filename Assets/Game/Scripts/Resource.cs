@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Rendering;
 
 public class Resource : MonoBehaviour
 {

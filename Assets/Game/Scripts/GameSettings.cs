@@ -1,35 +1,64 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class GameSettings : MonoBehaviour
 {
-    [SerializeField] private Slider _timeSlider;
+    [SerializeField] private SettingSlider _droneCountSlider;
 
-    [SerializeField] private Text _timeText;
+    [SerializeField] private SettingSlider _droneSpeedSlider;
 
-    private float _timeScale;
+    [SerializeField] private SettingSlider _simulationSpeedSlider;
 
-    private void Start()
-    {
-        _timeSlider.value = Time.timeScale;
-    }
+    [SerializeField] private Dropdown _resourceRateDropdown;
+
+    [SerializeField] private Toggle _pathViewToggle;
+
+    public static UnityAction<float> DroneCountChanged;
+    public static UnityAction<float> DroneSpeedChanged;
+    public static UnityAction<int> ResourceRateChanged;
+    public static UnityAction<bool> PathViewChanged;
 
     private void OnEnable()
     {
-        _timeSlider.onValueChanged.AddListener(OnTimeScaled);
+        _droneCountSlider.ValueChanged += OnDroneCountChanged;
+        _droneSpeedSlider.ValueChanged += OnDroneSpeedChanged;
+        _simulationSpeedSlider.ValueChanged += OnSimulationSpeedChanged;
+        _pathViewToggle.onValueChanged.AddListener(OnPathViewToggleChanged);
+        _resourceRateDropdown.onValueChanged.AddListener(OnResourceRateDropdownChanged);
     }
 
     private void OnDisable()
     {
-        _timeSlider.onValueChanged.RemoveListener(OnTimeScaled);
+        _droneCountSlider.ValueChanged -= OnDroneCountChanged;
+        _droneSpeedSlider.ValueChanged -= OnDroneSpeedChanged;
+        _simulationSpeedSlider.ValueChanged -= OnSimulationSpeedChanged;
+        _pathViewToggle.onValueChanged.RemoveListener(OnPathViewToggleChanged);
+        _resourceRateDropdown.onValueChanged.RemoveListener(OnResourceRateDropdownChanged);
     }
 
-    private void OnTimeScaled(float value)
+    private void OnSimulationSpeedChanged(float value)
     {
-        _timeScale = value;
+        Time.timeScale = value;
+    }
 
-        _timeText.text = "x" + _timeScale.ToString();
+    private void OnDroneCountChanged(float value)
+    {
+        DroneCountChanged?.Invoke(value);
+    }
 
-        Time.timeScale = _timeScale;
+    private void OnDroneSpeedChanged(float value)
+    {
+        DroneSpeedChanged?.Invoke(value);
+    }
+
+    private void OnPathViewToggleChanged(bool value)
+    {
+        PathViewChanged?.Invoke(value);
+    }
+
+    private void OnResourceRateDropdownChanged(int value)
+    {
+        ResourceRateChanged?.Invoke(value);
     }
 }

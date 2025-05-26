@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -9,8 +8,6 @@ public class NavigationDepartment : MonoBehaviour
 {
     [SerializeField] private Drone _dronePrefab;
 
-    [SerializeField] private int DroneCount;
-
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private Color _color;
 
@@ -18,27 +15,12 @@ public class NavigationDepartment : MonoBehaviour
 
     private List<Drone> _drones = new List<Drone>();
     private Stack<Drone> _waitingDrones = new Stack<Drone>();
+    private Stack<Drone> _removedDrones = new Stack<Drone>();
 
     private IReadOnlyList<Resource> _resources => _resourceSpawner.FreeResources;
 
     [SerializeField] private Text _scoreText;
     private int _score = 0;
-
-    public void SpawnDrones()
-    {
-        for (int i = 0; i < DroneCount; i++)
-        {
-            Drone drone = Instantiate(_dronePrefab, transform);
-
-            drone.SetTeamColor(_color);
-
-            _waitingDrones.Push(drone);
-
-            drone.gameObject.SetActive(false);
-        }
-
-        StartCoroutine(DistributeDrones());
-    }
 
     public void Inject(ResourceSpawner resourceSpawner)
     {
@@ -159,6 +141,71 @@ public class NavigationDepartment : MonoBehaviour
 
         WaitDrone(drone);
         DisableDrone(drone);
+    }
+
+    private void SpawnDrones(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            Drone drone = Instantiate(_dronePrefab, transform);
+
+            drone.SetTeamColor(_color);
+
+            _removedDrones.Push(drone);
+
+            drone.gameObject.SetActive(false);
+        }
+
+        StartCoroutine(DistributeDrones());
+    }
+
+    private void OnDroneCountChanged(float value)
+    {
+        if (_drones.Count + _waitingDrones.Count + _removedDrones.Count <= 0)
+        {
+            SpawnDrones((int)value);
+        }
+
+        StartCoroutine(DistributeDrones(value));
+    }
+
+    private IEnumerator DistributeDrones(float count)
+    {
+        int dronesCount = _drones.Count + _waitingDrones.Count;
+
+        if (dronesCount < count)
+        {
+            if (_removedDrones.Count > 0)
+            {
+                Drone drone = _removedDrones.Pop();
+
+                WaitDrone(drone);
+                DisableDrone(drone);
+            }
+        }
+        if (dronesCount > count)
+        {
+            if (_waitingDrones.Count > 0)
+            {
+                _removedDrones.Push(_waitingDrones.Pop());
+            }
+        }
+
+        if (dronesCount != count)
+        {
+            yield return new WaitForSeconds(1);
+            yield return StartCoroutine(DistributeDrones(count));
+        }
+    }
+
+    private void OnEnable()
+    {
+        GameSettings.DroneCountChanged += OnDroneCountChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameSettings.DroneCountChanged -= OnDroneCountChanged;
     }
 
     private void OnValidate()
