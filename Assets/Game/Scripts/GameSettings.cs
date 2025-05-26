@@ -30,6 +30,6 @@ public class GameSettings : MonoBehaviour
 
         _timeText.text = "x" + _timeScale.ToString();
 
-        Time.timeScale = (int)_timeScale;
+        Time.timeScale = _timeScale;
     }
 }

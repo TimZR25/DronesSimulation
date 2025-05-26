@@ -11,6 +11,9 @@ public class NavigationDepartment : MonoBehaviour
 
     [SerializeField] private int DroneCount;
 
+    [SerializeField] private SpriteRenderer _spriteRenderer;
+    [SerializeField] private Color _color;
+
     private ResourceSpawner _resourceSpawner;
 
     private List<Drone> _drones = new List<Drone>();
@@ -21,19 +24,14 @@ public class NavigationDepartment : MonoBehaviour
     [SerializeField] private Text _scoreText;
     private int _score = 0;
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            Debug.Log($"{this}: drones {_drones.Count} : {_waitingDrones.Count}");
-        }
-    }
-
     public void SpawnDrones()
     {
         for (int i = 0; i < DroneCount; i++)
         {
             Drone drone = Instantiate(_dronePrefab, transform);
+
+            drone.SetTeamColor(_color);
+
             _waitingDrones.Push(drone);
 
             drone.gameObject.SetActive(false);
@@ -49,8 +47,6 @@ public class NavigationDepartment : MonoBehaviour
 
     private IEnumerator DistributeDrones()
     {
-        //yield return new WaitUntil(() => _waitingDrones.Count > 0 && _resources.Count > 0);
-
         if (_waitingDrones.Count > 0 && _resources.Count > 0)
         {
             Drone drone = _waitingDrones.Pop();
@@ -75,7 +71,7 @@ public class NavigationDepartment : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(1);
 
         StartCoroutine(DistributeDrones());
     }
@@ -163,5 +159,10 @@ public class NavigationDepartment : MonoBehaviour
 
         WaitDrone(drone);
         DisableDrone(drone);
+    }
+
+    private void OnValidate()
+    {
+        _spriteRenderer.color = _color;
     }
 }

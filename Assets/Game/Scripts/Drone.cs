@@ -10,11 +10,10 @@ public class Drone : MonoBehaviour
 
     [SerializeField] private SpriteRenderer _spriteRenderer;
 
+    [SerializeField] private SpriteRenderer _teamSR;
+
     private NavMeshAgent _agent;
     public NavMeshAgent Agent => _agent;
-
-    private Resource _resource;
-    private Transform _target;
 
     private DroneState _state;
     public DroneState State
@@ -36,6 +35,8 @@ public class Drone : MonoBehaviour
     public UnityAction<Drone> Disabled;
     public UnityAction<Drone> Enabled;
 
+    private Resource _resource;
+    private Transform _target;
 
     private void Awake()
     {
@@ -47,51 +48,9 @@ public class Drone : MonoBehaviour
         _agent.updateUpAxis = false;
     }
 
-    private void UpdateSkin()
+    public void SetTeamColor(Color color)
     {
-        switch (State)
-        {
-            case DroneState.Wait:
-                _spriteRenderer.color = Color.white;
-                break;
-            case DroneState.Seek:
-                _spriteRenderer.color = Color.yellow;
-                break;
-            case DroneState.Collect:
-                _spriteRenderer.color = Color.green;
-                break;
-            case DroneState.Return:
-                _spriteRenderer.color = Color.cyan;
-                break;
-            default:
-                break;
-        }
-    }
-
-    private IEnumerator CheckState()
-    {
-        if (_target is not null)
-        {
-            if (Vector3.Distance(transform.position, _target.position) <= _collectRadius)
-            {
-                if (State == DroneState.Seek)
-                {
-                    yield return StartCoroutine(Collect());
-                }
-                else if (State == DroneState.Return)
-                {
-                    Unload();
-                }
-            }
-            else
-            {
-                MoveTo();
-            }
-        }
-
-        yield return new WaitForSeconds(0.5f);
-
-        yield return StartCoroutine(CheckState());
+        _teamSR.color = color;
     }
 
     public void MoveTo()
@@ -142,6 +101,53 @@ public class Drone : MonoBehaviour
     private void OnDisable()
     {
         StopAllCoroutines();
+    }
+
+    private void UpdateSkin()
+    {
+        switch (State)
+        {
+            case DroneState.Wait:
+                _spriteRenderer.color = Color.white;
+                break;
+            case DroneState.Seek:
+                _spriteRenderer.color = Color.yellow;
+                break;
+            case DroneState.Collect:
+                _spriteRenderer.color = Color.green;
+                break;
+            case DroneState.Return:
+                _spriteRenderer.color = Color.cyan;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private IEnumerator CheckState()
+    {
+        if (_target is not null)
+        {
+            if (Vector3.Distance(transform.position, _target.position) <= _collectRadius)
+            {
+                if (State == DroneState.Seek)
+                {
+                    yield return StartCoroutine(Collect());
+                }
+                else if (State == DroneState.Return)
+                {
+                    Unload();
+                }
+            }
+            else
+            {
+                MoveTo();
+            }
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        yield return StartCoroutine(CheckState());
     }
 
     private void OnDrawGizmosSelected()
