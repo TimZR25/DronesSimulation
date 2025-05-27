@@ -119,7 +119,7 @@ public class NavigationDepartment : MonoBehaviour
             }
         }
 
-        if (currentTarget != null)
+        if (currentTarget != null && currentTarget.gameObject.activeSelf)
         {
             _resourceSpawner.ReserveResource(currentTarget);
 
